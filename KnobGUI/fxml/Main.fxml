@@ -27,10 +27,11 @@
 							<MenuItem mnemonicParsing="false" text="Close" onAction="#handleCloseAction" />
 						</items>
 					</Menu>
-					<Menu mnemonicParsing="false" text="Generation">
+					<Menu mnemonicParsing="false" text="Generator">
 						<items>
 							<MenuItem mnemonicParsing="false" text="Start" onAction="#handleStartAction" />
 							<MenuItem mnemonicParsing="false" text="Stop" onAction="#handleStopAction" />
+							<MenuItem mnemonicParsing="false" text="Read" onAction="#handleReadAction" />
 						</items>
 					</Menu>
 					<Menu mnemonicParsing="false" text="Help">
@@ -78,7 +79,7 @@
 										<Insets right="5" />
 									</HBox.margin>
 								</Label>
-								<Label fx:id="lbl_knob_ph_value" text="50.0"></Label>
+								<Label fx:id="lbl_knob_ph_value" text="0"></Label>
 								<Label text="deg"></Label>
 							</HBox>
 						</VBox>

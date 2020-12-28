@@ -21,6 +21,10 @@ import javafx.scene.control.Alert;
  *
  */
 public class Controller implements Initializable {
+	private int frequency = 1;
+	private int phase = 0;
+	private int wave = 0;
+
 	@FXML
 	private BasicKnob knob_fq;
 
@@ -64,6 +68,15 @@ public class Controller implements Initializable {
 
 	}
 
+	@FXML
+	private void handleReadAction(final ActionEvent event) {
+
+	}
+
+	private void handleSendValuesAction() {
+		System.out.println(String.format("[2; 5; 7; %d; %d;;;; %d;;]", wave, frequency, phase));
+	}
+
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		knob_fq.setValue(1.0);
@@ -73,6 +86,18 @@ public class Controller implements Initializable {
 				if (mouseEvent.getButton() == MouseButton.PRIMARY) {
 					if (mouseEvent.getClickCount() == 2) {
 						knob_fq.setValue(1.0);
+					}
+				}
+			}
+		});
+
+		knob_fq.setOnMouseReleased(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				if (mouseEvent.getButton() == MouseButton.PRIMARY) {
+					if (mouseEvent.getClickCount() == 1) {
+						frequency = (int)knob_fq.getValue();
+						handleSendValuesAction();
 					}
 				}
 			}
@@ -94,6 +119,18 @@ public class Controller implements Initializable {
 			}
 		});
 
+		knob_ph.setOnMouseReleased(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				if (mouseEvent.getButton() == MouseButton.PRIMARY) {
+					if (mouseEvent.getClickCount() == 1) {
+						phase = (int)knob_ph.getValue();
+						handleSendValuesAction();
+					}
+				}
+			}
+		});
+
 		knob_ph.valueProperty().addListener((obs, oldValue, newValue) -> {
 			lbl_knob_ph_value.setText(String.format("%d", newValue.intValue()));
 		});
@@ -105,6 +142,21 @@ public class Controller implements Initializable {
 				if (mouseEvent.getButton() == MouseButton.PRIMARY) {
 					if (mouseEvent.getClickCount() == 2) {
 						knob_wave.setValue(0);
+
+						wave = Math.min(2, (int)knob_wave.getValue());
+						handleSendValuesAction();
+					}
+				}
+			}
+		});
+
+		knob_wave.setOnMouseReleased(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				if (mouseEvent.getButton() == MouseButton.PRIMARY) {
+					if (mouseEvent.getClickCount() == 1) {
+						wave = Math.min(2, (int)knob_wave.getValue());
+						handleSendValuesAction();
 					}
 				}
 			}
@@ -112,7 +164,6 @@ public class Controller implements Initializable {
 
 		knob_wave.valueProperty().addListener((obs, oldValue, newValue) -> {
 			String text = "";
-			System.out.println(newValue);
 			switch (newValue.intValue()) {
 			case 0:
 				text = "sine";
