@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import fhtw.util.BorderedTitledPane?>
+
+<?import fhtw.util.BasicKnob?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
+
+<AnchorPane fx:id="anchor_pane" maxHeight="-Infinity"
+	maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+	xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+	<children>
+		<VBox>
+			<MenuBar fx:id="mb_menu">
+				<menus>
+					<Menu mnemonicParsing="false" text="File">
+						<items>
+							<MenuItem mnemonicParsing="false" text="Close" onAction="#handleCloseAction" />
+						</items>
+					</Menu>
+					<Menu mnemonicParsing="false" text="Generation">
+						<items>
+							<MenuItem mnemonicParsing="false" text="Start" onAction="#handleStartAction" />
+							<MenuItem mnemonicParsing="false" text="Stop" onAction="#handleStopAction" />
+						</items>
+					</Menu>
+					<Menu mnemonicParsing="false" text="Help">
+						<items>
+							<MenuItem mnemonicParsing="false" text="About" onAction="#handleAboutAction" />
+						</items>
+					</Menu>
+				</menus>
+			</MenuBar>
+			<BorderedTitledPane stylesheets="@../css/Main.css"
+				title="Controls">
+				<VBox.margin>
+					<Insets left="10" top="10" right="10" bottom="10" />
+				</VBox.margin>
+				<children>
+					<HBox>
+						<VBox>
+							<BasicKnob fx:id="knob_fq" styleClass="vertical-knob"
+								inverted="false" knobSize="100" min="1" max="10000">
+								<VBox.margin>
+									<Insets left="25" top="25" right="50" bottom="50" />
+								</VBox.margin>
+							</BasicKnob>
+							<HBox alignment="CENTER">
+								<Label text="Frequency:">
+									<HBox.margin>
+										<Insets right="5" />
+									</HBox.margin>
+								</Label>
+								<Label fx:id="lbl_knob_fq_value" text="1"></Label>
+								<Label text="Hz"></Label>
+							</HBox>
+						</VBox>
+
+						<VBox>
+							<BasicKnob fx:id="knob_ph" styleClass="vertical-knob"
+								inverted="false" knobSize="100" min="0" max="359">
+								<VBox.margin>
+									<Insets left="25" top="25" right="50" bottom="50" />
+								</VBox.margin>
+							</BasicKnob>
+							<HBox alignment="CENTER">
+								<Label text="Phase:">
+									<HBox.margin>
+										<Insets right="5" />
+									</HBox.margin>
+								</Label>
+								<Label fx:id="lbl_knob_ph_value" text="50.0"></Label>
+								<Label text="deg"></Label>
+							</HBox>
+						</VBox>
+
+						<VBox>
+							<BasicKnob fx:id="knob_wave" styleClass="vertical-knob"
+								knobSize="100" min="0" max="3">
+								<VBox.margin>
+									<Insets left="25" top="25" right="65" bottom="50" />
+								</VBox.margin>
+							</BasicKnob>
+							<HBox alignment="CENTER">
+								<Label text="Waveform:">
+									<HBox.margin>
+										<Insets right="5" />
+									</HBox.margin>
+								</Label>
+								<Label fx:id="lbl_knob_wave_value" text="sine"></Label>
+							</HBox>
+						</VBox>
+					</HBox>
+				</children>
+			</BorderedTitledPane>
+		</VBox>
+	</children>
+</AnchorPane>
