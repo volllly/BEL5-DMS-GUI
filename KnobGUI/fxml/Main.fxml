@@ -103,6 +103,7 @@
 					</HBox>
 				</children>
 			</BorderedTitledPane>
+			<HBox styleClass="statusbar"><Label fx:id="lbl_statusbar" text="Not Connected"></Label></HBox>
 		</VBox>
 	</children>
 </AnchorPane>

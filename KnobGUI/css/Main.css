@@ -26,4 +26,7 @@
     -fx-background-size: stretch;
 }
 
+.statusbar {
+	-fx-background-color: lightgrey;
+}
 /* EOF */
