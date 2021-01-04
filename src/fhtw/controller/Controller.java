@@ -50,6 +50,11 @@ public class Controller implements Initializable {
 	private boolean connected = false;
 
 	/**
+	 * If read values should be written immediately.
+	 */
+	private boolean writeAfterRead = false;
+
+	/**
 	 * Instance of the HID_Device.
 	 */
 	private HID_Device hid_device;
@@ -134,14 +139,14 @@ public class Controller implements Initializable {
 	/**
 	 * Handles the Generator-Start menu action.
 	 *
-	 * Sends the start command to the SignalGenerator.
+	 * Read values and resent them to start the SignalGenerator.
 	 *
-	 * @param event `AvtionEvent` comming from FXML
+	 * @param event `AvtionEvent` coming from FXML
 	 */
 	@FXML
 	private void handleStartAction(final ActionEvent event) {
+		writeAfterRead = true;
 		hid_device.transmitPacket("_r_");
-		hid_device.transmitPacket("_n_");
 	}
 
 	/**
@@ -149,7 +154,7 @@ public class Controller implements Initializable {
 	 *
 	 * Sends the stop command to the SignalGenerator.
 	 *
-	 * @param event `AvtionEvent` comming from FXML
+	 * @param event `AvtionEvent` coming from FXML
 	 */
 	@FXML
 	private void handleStopAction(final ActionEvent event) {
@@ -161,7 +166,7 @@ public class Controller implements Initializable {
 	 *
 	 * Sends the read command to the SignalGenerator.
 	 *
-	 * @param event `AvtionEvent` comming from FXML
+	 * @param event `AvtionEvent` coming from FXML
 	 */
 	@FXML
 	private void handleReadAction(final ActionEvent event) {
@@ -353,6 +358,11 @@ public class Controller implements Initializable {
 					knob_wave.setValue(wave);
 					knob_fq.setValue(frequency);
 					knob_ph.setValue(phase);
+
+					if(writeAfterRead) {
+						handleSendValuesAction();
+						writeAfterRead = false;
+					}
 					return;
 				}
 			}
