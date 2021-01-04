@@ -50,11 +50,6 @@ public class Controller implements Initializable {
 	private boolean connected = false;
 
 	/**
-	 * If read values should be written immediately.
-	 */
-	private boolean writeAfterRead = false;
-
-	/**
 	 * Instance of the HID_Device.
 	 */
 	private HID_Device hid_device;
@@ -145,8 +140,7 @@ public class Controller implements Initializable {
 	 */
 	@FXML
 	private void handleStartAction(final ActionEvent event) {
-		writeAfterRead = true;
-		hid_device.transmitPacket("_r_");
+		hid_device.transmitPacket("_n_");
 	}
 
 	/**
@@ -180,7 +174,7 @@ public class Controller implements Initializable {
 	 * This method needs to be called when the values should be updated on the SignalGenerator.
 	 */
 	private void handleSendValuesAction() {
-		hid_device.transmitPacket(String.format("_%d_%d_%d_", wave, frequency, phase));
+		hid_device.transmitPacket(String.format("_%d_%d_%d_", wave + 1, frequency, phase));
 	}
 
 	/**
@@ -351,7 +345,7 @@ public class Controller implements Initializable {
 						return;
 					}
 
-					wave = Integer.parseInt(matches.group(0));
+					wave = Integer.parseInt(matches.group(0)) - 1;
 					frequency = Integer.parseInt(matches.group(1));
 					phase = Integer.parseInt(matches.group(2));
 
@@ -359,10 +353,7 @@ public class Controller implements Initializable {
 					knob_fq.setValue(frequency);
 					knob_ph.setValue(phase);
 
-					if(writeAfterRead) {
-						handleSendValuesAction();
-						writeAfterRead = false;
-					}
+					handleSendValuesAction();
 					return;
 				}
 			}

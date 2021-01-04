@@ -25,15 +25,6 @@ public class HID_Device implements Runnable {
 	private HidDeviceInfo hidDevInfo = null;
 	private Thread th_HID_device = null;
 
-	private byte id = 0;
-
-	/**
-	 * A queue with all message ids of sent messages.
-	 *
-	 * When a reply is received the id is removed from the queue.
-	 */
-	private List<Byte> queue = new ArrayList<Byte>();
-
 	/**
 	 * Instance of the registered `DeviceRemovalListener` event handler
 	 */
@@ -100,35 +91,34 @@ public class HID_Device implements Runnable {
 								hidDevInfo = null;
 								hid_dev_opened = false;
 
-								queue.clear(); // clear id queue on connection loss
-								deviceRemovalListener.onDeviceRemoval(); // call the registered {@link fhtw.usb_hid.DeviceRemovalListener}
+								if(deviceRemovalListener != null) {
+									deviceRemovalListener.onDeviceRemoval(); // call the registered {@link fhtw.usb_hid.DeviceRemovalListener}
+								}
 							}
 						});
 
 						hid_device.setInputReportListener(new InputReportListener() {
 							@Override
 							public void onInputReport(HidDevice source, byte Id, byte[] data, int len) {
-								if(!queue.contains(Id)) { // Error if the message id is not expected
-									errorListener.onError(new Throwable("reply id not found."));
-									return;
+								if(inputListener != null) {
+									inputListener.onInput(data.toString()); // call the registered {@link fhtw.usb_hid.InputListener}
 								}
-								queue.remove(queue.indexOf(Id)); // Remove the id from the queue
-
-								inputListener.onInput(data.toString()); // call the registered {@link fhtw.usb_hid.InputListener}
 							}
 						});
 
 						hid_dev_opened = true;
-						deviceConnectionListener.onDeviceConnection(); // call the registered {@link fhtw.usb_hid.DeviceConnectionListener}
+						if(deviceConnectionListener != null) {
+							deviceConnectionListener.onDeviceConnection(); // call the registered {@link fhtw.usb_hid.DeviceConnectionListener}
+						}
 					}
 
 				} else {
 					Thread.sleep(10);
 				}
 			} catch (Throwable e) {
-				// TODO Auto-generated catch block
-				queue.clear();
-				errorListener.onError(e);
+				if(errorListener != null) {
+					errorListener.onError(e);
+				}
 			}
 		}
 	}
@@ -176,17 +166,10 @@ public class HID_Device implements Runnable {
 			return false;
 		}
 
-		if(queue.size() >= 255) { // Error on queue overload
-			errorListener.onError(new Throwable("To many commands sent."));
-			return false;
-		}
+		payload += "\0";
 
-		hid_device.setOutputReport(id, payload.getBytes(), payload.getBytes().length);
+		hid_device.setOutputReport((byte)0, payload.getBytes(), payload.getBytes().length);
 
-		queue.add(id); // Add id to queue
-		id++;
-
-		System.out.println(queue); //TMP
 		return true;
 	}
 }
