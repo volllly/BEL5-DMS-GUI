@@ -11,18 +11,21 @@ import javafx.scene.shape.Line;
 import javafx.scene.transform.Rotate;
 
 /**
- * @author Markus Lechner
- * @version 0.1.0
+ * This is a simple knob control for JavaFX<br>
  *
- * This is a simple knob control for JavaFX
+ * 0.1.0<br>
+ * The control now animates correctly when the user sets the value in code.<br>
  *
- * 0.0.1 -> 0.1
- * The control now animates correctly when the
- * user sets the value in code.
+ * Removed a lot of bad code<br>
+ * Made some getter/setter non-final in order to allow them to be overridden.<br>
  *
- * Removed a lot of bad code
- * Made some getter/setter non-final in order
- * to allow them to be overridden.
+ *  0.1.1<br>
+ *  Fixed problems with the angle.<br>
+ *
+ *  Added functionality to completely setup button from fxml.
+ *
+ * @author Paul Volavsek
+ * @version 0.1.1
  */
 public class BasicKnob extends Region
 {
@@ -184,7 +187,7 @@ public class BasicKnob extends Region
 	}
 
 	/**
-	 * @param A value between min & max
+	 * @param value A value between min and max
 	 * @return the angle the control should be drawn
 	 * if this value is set
 	 */
@@ -206,7 +209,7 @@ public class BasicKnob extends Region
 	}
 
 	/**
-	 * @param An angle between minAngle & maxAngle
+	 * @param angle An angle between minAngle and maxAngle
 	 * @return the value this angle points to
 	 */
 	protected double angleToValue(double angle) {
@@ -238,6 +241,8 @@ public class BasicKnob extends Region
 	/**
 	 * Sets the value of the control and
 	 * animates it accordingly
+	 *
+	 * @param v value to set
 	 */
 	public void setValue(double v) {
 		value.set(v);
@@ -261,6 +266,8 @@ public class BasicKnob extends Region
 
 	/**
 	 * Sets the smallest allowed value
+	 *
+	 * @param v value to set
 	 */
 	public void setMin(double v) {
 		min.set(v);
@@ -281,6 +288,8 @@ public class BasicKnob extends Region
 
 	/**
 	 * Sets the highest allowed value
+	 *
+	 * @param v value to set
 	 */
 	public void setMax(double v) {
 		max.set(v);
@@ -306,6 +315,8 @@ public class BasicKnob extends Region
 
 	/**
 	 * Sets the left stop of the knob
+	 *
+	 * @param minAngle value to set
 	 */
 	public void setMinAngle(double minAngle) {
 		this.minAngle = minAngle;
@@ -320,6 +331,8 @@ public class BasicKnob extends Region
 
 	/**
 	 * Sets the right stop of the knob
+	 *
+	 * @param maxAngle value to set
 	 */
 	public void setMaxAngle(double maxAngle) {
 		this.maxAngle = maxAngle;
@@ -356,6 +369,8 @@ public class BasicKnob extends Region
 	 * Set the dial direction
 	 * false: default, lowest value is left
 	 * true: lowest value is right
+	 *
+	 * @param v value to set
 	 */
 	public void setInverted(boolean v) {
 		inverted = v;

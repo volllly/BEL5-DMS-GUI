@@ -1,6 +1,3 @@
-/**
- *
- */
 package fhtw.usb_hid;
 
 import java.util.ArrayList;
@@ -13,8 +10,11 @@ import purejavahidapi.InputReportListener;
 import purejavahidapi.PureJavaHidApi;
 
 /**
- * @author Markus Lechner
+ * Manages communication with the SignalGenerator.
  *
+ * Based on the provided implementation in `USB HID System Software` from the BEL-VZ-5-WS2020-DMS moodle course.
+ *
+ * @author Paul Volavsek
  */
 public class HID_Device implements Runnable {
 	private final short HID_PRODUCT_ID = 0x0081;
@@ -26,22 +26,45 @@ public class HID_Device implements Runnable {
 	private Thread th_HID_device = null;
 
 	private byte id = 0;
-	private List<Byte> queue = new ArrayList<Byte>();
-
-	private DeviceRemovalListener deviceRemovalListener;
-	private DeviceConnectionListener deviceConnectionListener;
-	private InputListener inputListener;
-	private ErrorListener errorListener;
 
 	/**
+	 * A queue with all message ids of sent messages.
 	 *
+	 * When a reply is received the id is removed from the queue.
 	 */
+	private List<Byte> queue = new ArrayList<Byte>();
+
+	/**
+	 * Instance of the registered `DeviceRemovalListener` event handler
+	 */
+	private fhtw.usb_hid.DeviceRemovalListener deviceRemovalListener;
+
+	/**
+	 * Instance of the registered `DeviceConnectionListener` event handler
+	 */
+	private DeviceConnectionListener deviceConnectionListener;
+
+	/**
+	 * Instance of the registered `InputListener` event handler
+	 */
+	private InputListener inputListener;
+
+	/**
+	 * Instance of the registered `ErrorListener` event handler
+	 */
+	private ErrorListener errorListener;
+
 	public HID_Device() {
 		th_HID_device = new Thread(this);
 		th_HID_device.setName("HID_Device");
 		th_HID_device.setDaemon(true);
 	}
 
+	/**
+	 * Starts the `HID_Device`.
+	 *
+	 * Needs to be called to operate.
+	 */
 	public void start_HID_Device() {
 		th_HID_device.start();
 	}
@@ -77,26 +100,26 @@ public class HID_Device implements Runnable {
 								hidDevInfo = null;
 								hid_dev_opened = false;
 
-								queue.clear();
-								deviceRemovalListener.onDeviceRemoval(source);
+								queue.clear(); // clear id queue on connection loss
+								deviceRemovalListener.onDeviceRemoval(); // call the registered {@link fhtw.usb_hid.DeviceRemovalListener}
 							}
 						});
 
 						hid_device.setInputReportListener(new InputReportListener() {
 							@Override
 							public void onInputReport(HidDevice source, byte Id, byte[] data, int len) {
-								if(!queue.contains(Id)) {
+								if(!queue.contains(Id)) { // Error if the message id is not expected
 									errorListener.onError(new Throwable("reply id not found."));
 									return;
 								}
-								queue.remove(queue.indexOf(Id));
+								queue.remove(queue.indexOf(Id)); // Remove the id from the queue
 
-								inputListener.onInput(source, data.toString());
+								inputListener.onInput(data.toString()); // call the registered {@link fhtw.usb_hid.InputListener}
 							}
 						});
 
 						hid_dev_opened = true;
-						deviceConnectionListener.onDeviceConnection(hid_device);
+						deviceConnectionListener.onDeviceConnection(); // call the registered {@link fhtw.usb_hid.DeviceConnectionListener}
 					}
 
 				} else {
@@ -110,35 +133,57 @@ public class HID_Device implements Runnable {
 		}
 	}
 
+	/**
+	 * Register an {@link fhtw.usb_hid.ErrorListener}
+	 * @param listener The ErrorListener to register
+	 */
 	public void registerErrorListener(ErrorListener listener) {
 		errorListener = listener;
 	}
 
+	/**
+	 * Register an {@link fhtw.usb_hid.DeviceConnectionListener}
+	 * @param listener The DeviceConnectionListener to register
+	 */
 	public void registerDeviceConnectionListener(DeviceConnectionListener listener) {
 		deviceConnectionListener = listener;
 	}
 
-	public void registerDeviceRemovalListener(DeviceRemovalListener listener) {
+	/**
+	 * Register an {@link purejavahidapi.DeviceRemovalListener}
+	 * @param listener The DeviceRemovalListener to register
+	 */
+	public void registerDeviceRemovalListener(fhtw.usb_hid.DeviceRemovalListener listener) {
 		deviceRemovalListener = listener;
 	}
 
+	/**
+	 * Register an {@link fhtw.usb_hid.InputListener}
+	 * @param listener The InputListener to register
+	 */
 	public void registerInputListener(InputListener listener) {
 		inputListener = listener;
 	}
 
+	/**
+	 * Transmits a Message to the SignalGenerator
+	 * @param payload The command to send
+	 * @return Indicates transmission success.
+	 */
 	public boolean transmitPacket(String payload) {
 		if (hid_device == null) {
 			errorListener.onError(new Throwable("No Device Connected"));
 			return false;
 		}
 
-		if(queue.size() >= 255) {
+		if(queue.size() >= 255) { // Error on queue overload
 			errorListener.onError(new Throwable("To many commands sent."));
 			return false;
 		}
 
 		hid_device.setOutputReport(id, payload.getBytes(), payload.getBytes().length);
-		queue.add(id);
+
+		queue.add(id); // Add id to queue
 		id++;
 
 		System.out.println(queue); //TMP

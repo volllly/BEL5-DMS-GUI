@@ -1,6 +1,3 @@
-/**
- *
- */
 package fhtw.controller;
 
 import java.net.URL;
@@ -20,45 +17,98 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import purejavahidapi.DeviceRemovalListener;
-import purejavahidapi.HidDevice;
-import purejavahidapi.InputReportListener;
+import fhtw.usb_hid.DeviceRemovalListener;
 import javafx.scene.control.Alert;
 
 /**
- * @author Paul Volavsek
+ * This is the Controller class for the user interface.
  *
+ * The whole interface is constructed in the <a href="{@docRoot}/KnobGUI/fxml/Main.fxml">FXML</a> file.
+ *
+ * @author Paul Volavsek
  */
 public class Controller implements Initializable {
+	/**
+	 * The current frequency.
+	 */
 	private int frequency = 1;
+	/**
+	 * The current phase.
+	 */
 	private int phase = 0;
+	/**
+	 * The current waveform.
+	 * 	1. sine
+	 *  2. triangle
+	 *  3. square
+	 */
 	private int wave = 0;
 
+	/**
+	 * If connection is established.
+	 */
 	private boolean connected = false;
 
+	/**
+	 * Instance of the HID_Device.
+	 */
 	private HID_Device hid_device;
 
+	/**
+	 * The frequency knob.
+	 */
 	@FXML
 	private BasicKnob knob_fq;
 
+
+	/**
+	 * The phase knob.
+	 */
 	@FXML
 	private BasicKnob knob_ph;
 
+
+	/**
+	 * The waveform knob.
+	 */
 	@FXML
 	private BasicKnob knob_wave;
 
+
+	/**
+	 * The frequency label.
+	 */
 	@FXML
 	private Label lbl_knob_fq_value;
 
+
+	/**
+	 * The phase label.
+	 */
 	@FXML
 	private Label lbl_knob_ph_value;
 
+
+	/**
+	 * The waveform label.
+	 */
 	@FXML
 	private Label lbl_knob_wave_value;
 
+
+	/**
+	 * The statusbar label.
+	 */
 	@FXML
 	private Label lbl_statusbar;
 
+	/**
+	 * Handles the Help-About menu action.
+	 *
+	 * Shows popup window.
+	 *
+	 * @param event `AvtionEvent` comming from FXML
+	 */
 	@FXML
 	private void handleAboutAction(final ActionEvent event) {
 		Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -69,49 +119,94 @@ public class Controller implements Initializable {
 
 	}
 
+	/**
+	 * Handles the File-Close menu action.
+	 *
+	 * Exits the application.
+	 *
+	 * @param event `AvtionEvent` comming from FXML
+	 */
 	@FXML
 	private void handleCloseAction(final ActionEvent event) {
 		System.exit(1);
 	}
 
+	/**
+	 * Handles the Generator-Start menu action.
+	 *
+	 * Sends the start command to the SignalGenerator.
+	 *
+	 * @param event `AvtionEvent` comming from FXML
+	 */
 	@FXML
 	private void handleStartAction(final ActionEvent event) {
+		hid_device.transmitPacket("_r_");
 		hid_device.transmitPacket("_n_");
 	}
 
+	/**
+	 * Handles the Generator-Stop menu action.
+	 *
+	 * Sends the stop command to the SignalGenerator.
+	 *
+	 * @param event `AvtionEvent` comming from FXML
+	 */
 	@FXML
 	private void handleStopAction(final ActionEvent event) {
 		hid_device.transmitPacket("_f_");
 	}
 
+	/**
+	 * Handles the Generator-Read menu action.
+	 *
+	 * Sends the read command to the SignalGenerator.
+	 *
+	 * @param event `AvtionEvent` comming from FXML
+	 */
 	@FXML
 	private void handleReadAction(final ActionEvent event) {
 		hid_device.transmitPacket("_r_");
 	}
 
+	/**
+	 * Handler for value updates.
+	 *
+	 * Sends the current values to the SignalGenerator.
+	 * This method needs to be called when the values should be updated on the SignalGenerator.
+	 */
 	private void handleSendValuesAction() {
 		hid_device.transmitPacket(String.format("_%d_%d_%d_", wave, frequency, phase));
 	}
 
+	/**
+	 * Shows a message on the statusbar.
+	 *
+	 * @param message The message to show on the statusbar
+	 *
+	 */
 	private void setStatusbar(String message) {
 		lbl_statusbar.setText((connected ? "Connected" : "Not Connected") + (message != "" ? " | " + message : ""));
 	}
 
+	/**
+	 * Initializes the ui and ui controller.
+	 */
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		knob_fq.setValue(1.0);
-		knob_fq.setOnMouseClicked(new EventHandler<MouseEvent>() {
+		knob_fq.setValue(1.0); //initial fq knob value
+		knob_fq.setOnMouseClicked(new EventHandler<MouseEvent>() { // reset fq value on doubleclick
 			@Override
 			public void handle(MouseEvent mouseEvent) {
 				if (mouseEvent.getButton() == MouseButton.PRIMARY) {
 					if (mouseEvent.getClickCount() == 2) {
 						knob_fq.setValue(1.0);
+						handleSendValuesAction();
 					}
 				}
 			}
 		});
 
-		knob_fq.setOnMouseReleased(new EventHandler<MouseEvent>() {
+		knob_fq.setOnMouseReleased(new EventHandler<MouseEvent>() { // sendvalues on mouserelease
 			@Override
 			public void handle(MouseEvent mouseEvent) {
 				if (mouseEvent.getButton() == MouseButton.PRIMARY) {
@@ -123,23 +218,24 @@ public class Controller implements Initializable {
 			}
 		});
 
-		knob_fq.valueProperty().addListener((obs, oldValue, newValue) -> {
+		knob_fq.valueProperty().addListener((obs, oldValue, newValue) -> { // update fq label on knob value change
 			lbl_knob_fq_value.setText(String.format("%d", newValue.intValue()));
 		});
 
-		knob_ph.setValue(0);
-		knob_ph.setOnMouseClicked(new EventHandler<MouseEvent>() {
+		knob_ph.setValue(0); //initial ph knob value
+		knob_ph.setOnMouseClicked(new EventHandler<MouseEvent>() { // reset ph value on doubleclick
 			@Override
 			public void handle(MouseEvent mouseEvent) {
 				if (mouseEvent.getButton() == MouseButton.PRIMARY) {
 					if (mouseEvent.getClickCount() == 2) {
 						knob_ph.setValue(0);
+						handleSendValuesAction();
 					}
 				}
 			}
 		});
 
-		knob_ph.setOnMouseReleased(new EventHandler<MouseEvent>() {
+		knob_ph.setOnMouseReleased(new EventHandler<MouseEvent>() { // sendvalues on mouserelease
 			@Override
 			public void handle(MouseEvent mouseEvent) {
 				if (mouseEvent.getButton() == MouseButton.PRIMARY) {
@@ -151,12 +247,12 @@ public class Controller implements Initializable {
 			}
 		});
 
-		knob_ph.valueProperty().addListener((obs, oldValue, newValue) -> {
+		knob_ph.valueProperty().addListener((obs, oldValue, newValue) -> { // update ph label on knob value change
 			lbl_knob_ph_value.setText(String.format("%d", newValue.intValue()));
 		});
 
-		knob_wave.setValue(0.0);
-		knob_wave.setOnMouseClicked(new EventHandler<MouseEvent>() {
+		knob_wave.setValue(0.0);  //initial wave knob value
+		knob_wave.setOnMouseClicked(new EventHandler<MouseEvent>() { // reset wave value on doubleclick
 			@Override
 			public void handle(MouseEvent mouseEvent) {
 				if (mouseEvent.getButton() == MouseButton.PRIMARY) {
@@ -170,7 +266,7 @@ public class Controller implements Initializable {
 			}
 		});
 
-		knob_wave.setOnMouseReleased(new EventHandler<MouseEvent>() {
+		knob_wave.setOnMouseReleased(new EventHandler<MouseEvent>() { // sendvalues on mouserelease
 			@Override
 			public void handle(MouseEvent mouseEvent) {
 				if (mouseEvent.getButton() == MouseButton.PRIMARY) {
@@ -182,7 +278,7 @@ public class Controller implements Initializable {
 			}
 		});
 
-		knob_wave.valueProperty().addListener((obs, oldValue, newValue) -> {
+		knob_wave.valueProperty().addListener((obs, oldValue, newValue) -> { // update wave label on knob value change
 			String text = "";
 			switch (newValue.intValue()) {
 			case 0:
@@ -202,27 +298,28 @@ public class Controller implements Initializable {
 			lbl_knob_wave_value.setText(text);
 		});
 
+
 		hid_device = new HID_Device();
 
-		hid_device.registerErrorListener(new ErrorListener() {
+		hid_device.registerErrorListener(new ErrorListener() { // show error message on statusbar
 			@Override
 			public void onError(Throwable error) {
 				setStatusbar(error.getMessage());
 			}
 		});
 
-		hid_device.registerDeviceConnectionListener(new DeviceConnectionListener() {
+		hid_device.registerDeviceConnectionListener(new DeviceConnectionListener() { // register established connection and read values
 			@Override
-			public void onDeviceConnection(HidDevice source) {
+			public void onDeviceConnection() {
 				connected = true;
 				setStatusbar("");
 				handleReadAction(null);
 			}
 		});
 
-		hid_device.registerDeviceRemovalListener(new DeviceRemovalListener() {
+		hid_device.registerDeviceRemovalListener(new DeviceRemovalListener() { // register removed connection
 			@Override
-			public void onDeviceRemoval(HidDevice source) {
+			public void onDeviceRemoval() {
 				connected = false;
 				setStatusbar("");
 			}
@@ -230,7 +327,7 @@ public class Controller implements Initializable {
 
 		hid_device.registerInputListener(new InputListener() {
 			@Override
-			public void onInput(HidDevice source, String data) {
+			public void onInput(String data) {
 				if(data == "ACK") {
 					return;
 				}
@@ -240,6 +337,7 @@ public class Controller implements Initializable {
 					return;
 				}
 
+				// parse read reply
 				if(data.charAt(0) == '_') {
 					Matcher matches = Pattern.compile("^_([0-9]{1})_([0-9]{1,6})_([0-9]{1,3})_$").matcher(data);
 
@@ -255,6 +353,7 @@ public class Controller implements Initializable {
 					knob_wave.setValue(wave);
 					knob_fq.setValue(frequency);
 					knob_ph.setValue(phase);
+					return;
 				}
 			}
 		});

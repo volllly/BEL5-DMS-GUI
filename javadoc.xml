@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="private" author="true" classpath="lib/JNA/jna-4.2.1.jar;lib/purejavahid/purejavahidapi.jar;lib/JNA/jna-platform-4.2.2.jar" destdir="doc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="fhtw.usb_hid,fhtw.controller,fhtw.main,fhtw.util" source="1.8" sourcepath="KnobGUI;Images;src" splitindex="true" use="true" version="true"/>
+    </target>
+</project>

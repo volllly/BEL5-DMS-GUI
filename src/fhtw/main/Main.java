@@ -1,6 +1,3 @@
-/**
- *
- */
 package fhtw.main;
 
 import java.io.InputStream;
@@ -16,11 +13,11 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 /**
- * @author Markus Lechner
+ * The Main Application class constructs the user interface and starts the {@link fhtw.controller.Controller}.
  *
+ * @author Paul Volavsek
  */
 public class Main extends Application {
-
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		try {
@@ -59,7 +56,7 @@ public class Main extends Application {
 	}
 
 	/**
-	 * @param args
+	 * @param args Launch args
 	 */
 	public static void main(String[] args) {
 		launch(args);
