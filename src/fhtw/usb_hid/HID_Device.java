@@ -140,6 +140,8 @@ public class HID_Device implements Runnable {
 		hid_device.setOutputReport(id, payload.getBytes(), payload.getBytes().length);
 		queue.add(id);
 		id++;
+
+		System.out.println(queue); //TMP
 		return true;
 	}
 }
