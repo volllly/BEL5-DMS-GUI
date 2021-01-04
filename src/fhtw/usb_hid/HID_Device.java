@@ -1,8 +1,6 @@
 package fhtw.usb_hid;
 
-import java.util.ArrayList;
 import java.util.List;
-
 import purejavahidapi.DeviceRemovalListener;
 import purejavahidapi.HidDevice;
 import purejavahidapi.HidDeviceInfo;

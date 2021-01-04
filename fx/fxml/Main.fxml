@@ -50,7 +50,7 @@
 					<HBox>
 						<VBox>
 							<BasicKnob fx:id="knob_fq" styleClass="vertical-knob"
-								inverted="false" knobSize="100" min="1" max="10000">
+								inverted="false" knobSize="100" min="1" max="100000">
 								<VBox.margin>
 									<Insets left="25" top="25" right="50" bottom="50" />
 								</VBox.margin>

@@ -23,7 +23,7 @@ import javafx.scene.control.Alert;
 /**
  * This is the Controller class for the user interface.
  *
- * The whole interface is constructed in the <a href="{@docRoot}/KnobGUI/fxml/Main.fxml">FXML</a> file.
+ * The whole interface is constructed in the <a href="{@docRoot}/fx/fxml/Main.fxml">FXML</a> file.
  *
  * @author Paul Volavsek
  */
