@@ -5,9 +5,12 @@ package fhtw.controller;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import fhtw.usb_hid.DeviceConnectionListener;
 import fhtw.usb_hid.ErrorListener;
+import fhtw.usb_hid.InputListener;
 import fhtw.usb_hid.HID_Device;
 import fhtw.util.BasicKnob;
 import javafx.event.ActionEvent;
@@ -23,7 +26,7 @@ import purejavahidapi.InputReportListener;
 import javafx.scene.control.Alert;
 
 /**
- * @author Markus Lechner
+ * @author Paul Volavsek
  *
  */
 public class Controller implements Initializable {
@@ -73,36 +76,21 @@ public class Controller implements Initializable {
 
 	@FXML
 	private void handleStartAction(final ActionEvent event) {
-		hid_device.transmitPacket(new byte[] { 0, 5 });
+		hid_device.transmitPacket("_n_");
 	}
 
 	@FXML
 	private void handleStopAction(final ActionEvent event) {
-		hid_device.transmitPacket(new byte[] { 1, 5 });
+		hid_device.transmitPacket("_f_");
 	}
 
 	@FXML
 	private void handleReadAction(final ActionEvent event) {
-		hid_device.transmitPacket(new byte[] { 3, 5 });
+		hid_device.transmitPacket("_r_");
 	}
 
 	private void handleSendValuesAction() {
-		hid_device.transmitPacket(new byte[] {
-				2,
-				5,
-				7,
-				(byte)wave,
-
-				(byte)((frequency >> 8 * 3) % 2^8),
-				(byte)((frequency >> 8 * 2) % 2^8),
-				(byte)((frequency >> 8 * 2) % 2^8),
-				(byte)((frequency >> 8) % 2^8),
-
-				(byte)((phase >> 8) % 2^8),
-				(byte)(phase % 2^8)
-		});
-
-//		System.out.println(String.format("[2; 5; 7; %d; %d;;;; %d;;]", wave, frequency, phase));
+		hid_device.transmitPacket(String.format("_%d_%d_%d_", wave, frequency, phase));
 	}
 
 	private void setStatusbar(String message) {
@@ -240,34 +228,33 @@ public class Controller implements Initializable {
 			}
 		});
 
-		hid_device.registerInputReportListener(new InputReportListener() {
+		hid_device.registerInputListener(new InputListener() {
 			@Override
-			public void onInputReport(HidDevice source, byte Id, byte[] data, int len) {
-				int cmd = data[0];
-				int device = data[1];
-
-				if(device != 5) {
-					setStatusbar("Wrong Device received");
+			public void onInput(HidDevice source, String data) {
+				if(data == "ACK") {
+					return;
 				}
 
-				switch(cmd) {
-				case 0: //ack
-					break;
-				case 1: //nack
+				if(data == "NACK") {
 					setStatusbar("Received NACK");
-					break;
-				case 2: //state
-					if(data[2] != 7) {
-						setStatusbar("Wrong Payload size");
+					return;
+				}
+
+				if(data.charAt(0) == '_') {
+					Matcher matches = Pattern.compile("^_([0-9]{1})_([0-9]{1,6})_([0-9]{1,3})_$").matcher(data);
+
+					if(!matches.find()) {
+						setStatusbar("Clould not parse reply");
+						return;
 					}
-					wave = data[3];
-					frequency = (data[4] << 3 * 8) + (data[5] << 2 * 8) + (data[6] << 8) + data[7];
-					phase = (data[8] << 8) + data[9];
+
+					wave = Integer.parseInt(matches.group(0));
+					frequency = Integer.parseInt(matches.group(1));
+					phase = Integer.parseInt(matches.group(2));
 
 					knob_wave.setValue(wave);
 					knob_fq.setValue(frequency);
 					knob_ph.setValue(phase);
-					break;
 				}
 			}
 		});

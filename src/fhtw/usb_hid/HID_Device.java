@@ -30,7 +30,7 @@ public class HID_Device implements Runnable {
 
 	private DeviceRemovalListener deviceRemovalListener;
 	private DeviceConnectionListener deviceConnectionListener;
-	private InputReportListener inputReportListener;
+	private InputListener inputListener;
 	private ErrorListener errorListener;
 
 	/**
@@ -91,7 +91,7 @@ public class HID_Device implements Runnable {
 								}
 								queue.remove(queue.indexOf(Id));
 
-								inputReportListener.onInputReport(source, Id, data, len);
+								inputListener.onInput(source, data.toString());
 							}
 						});
 
@@ -122,11 +122,11 @@ public class HID_Device implements Runnable {
 		deviceRemovalListener = listener;
 	}
 
-	public void registerInputReportListener(InputReportListener listener) {
-		inputReportListener = listener;
+	public void registerInputListener(InputListener listener) {
+		inputListener = listener;
 	}
 
-	public boolean transmitPacket(byte[] payload) {
+	public boolean transmitPacket(String payload) {
 		if (hid_device == null) {
 			errorListener.onError(new Throwable("No Device Connected"));
 			return false;
@@ -137,7 +137,7 @@ public class HID_Device implements Runnable {
 			return false;
 		}
 
-		hid_device.setOutputReport(id, payload, payload.length);
+		hid_device.setOutputReport(id, payload.getBytes(), payload.getBytes().length);
 		queue.add(id);
 		id++;
 		return true;
