@@ -71,8 +71,6 @@ public class HID_Device implements Runnable {
 						if (HID_SERIAL_NR.equals(hid_info.getSerialNumberString())
 								&& (HID_PRODUCT_ID == hid_info.getProductId())) {
 							hidDevInfo = hid_info;
-							System.out.println("USB-HID device found! Product ID: "
-									+ Integer.toHexString(hid_info.getProductId()));
 							break;
 						}
 					}
@@ -109,7 +107,6 @@ public class HID_Device implements Runnable {
 							deviceConnectionListener.onDeviceConnection(); // call the registered {@link fhtw.usb_hid.DeviceConnectionListener}
 						}
 					}
-
 				} else {
 					Thread.sleep(10);
 				}
@@ -135,6 +132,9 @@ public class HID_Device implements Runnable {
 	 */
 	public void registerDeviceConnectionListener(DeviceConnectionListener listener) {
 		deviceConnectionListener = listener;
+		if(hid_dev_opened) {
+			deviceConnectionListener.onDeviceConnection();
+		}
 	}
 
 	/**
