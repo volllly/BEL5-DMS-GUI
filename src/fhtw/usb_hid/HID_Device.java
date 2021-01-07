@@ -1,6 +1,8 @@
 package fhtw.usb_hid;
 
 import java.util.List;
+
+import javafx.application.Platform;
 import purejavahidapi.DeviceRemovalListener;
 import purejavahidapi.HidDevice;
 import purejavahidapi.HidDeviceInfo;
@@ -88,7 +90,11 @@ public class HID_Device implements Runnable {
 								hid_dev_opened = false;
 
 								if(deviceRemovalListener != null) {
-									deviceRemovalListener.onDeviceRemoval(); // call the registered {@link fhtw.usb_hid.DeviceRemovalListener}
+									Platform.runLater(new Runnable(){
+										@Override public void run() {
+											deviceRemovalListener.onDeviceRemoval(); // call the registered {@link fhtw.usb_hid.DeviceRemovalListener}
+										}
+									});
 								}
 							}
 						});
@@ -97,14 +103,22 @@ public class HID_Device implements Runnable {
 							@Override
 							public void onInputReport(HidDevice source, byte Id, byte[] data, int len) {
 								if(inputListener != null) {
-									inputListener.onInput(data.toString()); // call the registered {@link fhtw.usb_hid.InputListener}
+									Platform.runLater(new Runnable(){
+										@Override public void run() {
+											inputListener.onInput(data.toString()); // call the registered {@link fhtw.usb_hid.InputListener}
+										}
+									});
 								}
 							}
 						});
 
 						hid_dev_opened = true;
 						if(deviceConnectionListener != null) {
-							deviceConnectionListener.onDeviceConnection(); // call the registered {@link fhtw.usb_hid.DeviceConnectionListener}
+							Platform.runLater(new Runnable(){
+								@Override public void run() {
+									deviceConnectionListener.onDeviceConnection(); // call the registered {@link fhtw.usb_hid.DeviceConnectionListener}
+								}
+							});
 						}
 					}
 				} else {
@@ -112,7 +126,11 @@ public class HID_Device implements Runnable {
 				}
 			} catch (Throwable e) {
 				if(errorListener != null) {
-					errorListener.onError(e);
+					Platform.runLater(new Runnable(){
+						@Override public void run() {
+							errorListener.onError(e);
+						}
+					});
 				}
 			}
 		}
