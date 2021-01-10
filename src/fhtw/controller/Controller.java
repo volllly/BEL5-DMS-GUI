@@ -312,7 +312,7 @@ public class Controller implements Initializable {
 			public void onDeviceConnection() {
 				connected = true;
 				setStatusbar("");
-				//handleReadAction(null);
+				handleReadAction(null);
 			}
 		});
 
